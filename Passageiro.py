@@ -1,6 +1,8 @@
 class Passageiro:
-    def __init__(self, nome):
-        self.nome = nome  # String com o nome do passageiro
+
+    def __init__(self, nome, destino):
+        self.nome = nome
+        self.destino = destino
 
     def __str__(self):
-        return self.nome
+        return f"{self.nome} -> {self.destino}"

@@ -1,51 +1,120 @@
 class Autocarro:
+    """
+    Classe que representa um autocarro.
+    """
 
-    def __init__(self, capacidade_maxima: int = 50):
+    def __init__(self, capacidade_maxima=50):
+
+        # Número máximo de passageiros
         self.capacidade_maxima = capacidade_maxima
-        self.passageiros = []   # Passageiros dentro do autocarro
 
-    def embarcar(self, nome: str) -> bool:
-        """Adiciona passageiro ao autocarro"""
+        # Lista de passageiros dentro do autocarro
+        self.passageiros_a_bordo = []
 
-        if len(self.passageiros) < self.capacidade_maxima:
-            self.passageiros.append(nome)
+        # Paragem atual
+        self.paragem_atual = None
 
-            print(f"{nome} entrou no autocarro.")
-            return True
+    def entrar_passageiro(self, passageiro):
+        """
+        Adiciona um passageiro ao autocarro
+        se existir espaço disponível.
+        """
 
-        print("Autocarro cheio!")
-        return False
+        if len(self.passageiros_a_bordo) >= self.capacidade_maxima:
+            print("O autocarro está cheio.")
+            return False
 
-    def desembarcar(self, nome: str) -> bool:
-        """Remove passageiro do autocarro"""
+        self.passageiros_a_bordo.append(passageiro)
 
-        if nome in self.passageiros:
-            self.passageiros.remove(nome)
+        print(f"{passageiro.nome} entrou no autocarro.")
 
-            print(f"{nome} saiu do autocarro.")
-            return True
+        return True
 
-        print(f"Passageiro '{nome}' não encontrado no autocarro.")
-        return False
+    def embarcar_passageiros(self):
+        """
+        Retira passageiros da fila da paragem
+        e coloca-os no autocarro enquanto houver espaço.
+        """
 
-    def get_numero_passageiros(self) -> int:
-        """Retorna o número de passageiros"""
-        return len(self.passageiros)
+        if self.paragem_atual is None:
+            print("O autocarro não está numa paragem.")
+            return
 
-    def lugares_disponiveis(self) -> int:
-        """Retorna lugares disponíveis"""
-        return self.capacidade_maxima - len(self.passageiros)
+        fila = self.paragem_atual.fila_passageiros
 
-    def mostrar_passageiros(self) -> None:
-        """Mostra passageiros no autocarro"""
+        while (
+            not fila.esta_vazia()
+            and len(self.passageiros_a_bordo) < self.capacidade_maxima
+        ):
 
-        print("\n=== Passageiros no Autocarro ===")
+            passageiro = fila.remover_primeiro()
 
-        if not self.passageiros:
-            print("Nenhum passageiro.")
-        else:
-            for p in self.passageiros:
-                print(f"- {p}")
+            self.entrar_passageiro(passageiro)
 
-    def __str__(self) -> str:
-        return f"Autocarro | Passageiros: {self.get_numero_passageiros()}/{self.capacidade_maxima}"
+    def desembarcar_passageiros(self, nome_paragem):
+        """
+        Remove passageiros cujo destino
+        seja a paragem atual.
+        """
+
+        passageiros_saida = []
+
+        for passageiro in self.passageiros_a_bordo:
+
+            if passageiro.destino == nome_paragem:
+                passageiros_saida.append(passageiro)
+
+        for passageiro in passageiros_saida:
+
+            self.passageiros_a_bordo.remove(passageiro)
+
+            print(f"{passageiro.nome} saiu do autocarro.")
+
+    def definir_paragem_atual(self, paragem):
+        """
+        Define a paragem atual do autocarro.
+        """
+
+        self.paragem_atual = paragem
+
+    def listar_passageiros(self):
+        """
+        Mostra os passageiros dentro do autocarro.
+        """
+
+        if len(self.passageiros_a_bordo) == 0:
+            print("Não existem passageiros a bordo.")
+            return
+
+        for passageiro in self.passageiros_a_bordo:
+            print(passageiro)
+
+    def simular_viagem(self, linha):
+        """
+        Percorre todas as paragens da linha.
+        """
+
+        atual = linha.cabeca
+
+        while atual is not None:
+
+            # Atualizar a paragem atual
+            self.definir_paragem_atual(atual)
+
+            print(f"\n=== PARAGEM: {atual.nome} ===")
+
+            # Passageiros saem
+            self.desembarcar_passageiros(atual.nome)
+
+            # Passageiros entram
+            self.embarcar_passageiros()
+
+            # Mostrar passageiros atuais
+            print("\nPassageiros no autocarro:")
+
+            self.listar_passageiros()
+
+            # Avançar para a próxima paragem
+            atual = atual.next
+
+        print("\n=== Fim da linha ===")

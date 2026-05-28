@@ -1,46 +1,49 @@
-class FilaPassageiros:
+class NoFila:
+    def __init__(self, passageiro):
+        self.passageiro = passageiro
+        self.proximo = None
+
+
+class FilaPassageiro:
 
     def __init__(self):
-        self.fila = []
+        self.frente = None
+        self.fim = None
 
-    def enfileirar(self, nome: str) -> None:
-        """Adiciona passageiro ao final da fila"""
+    def adicionar_passageiro(self, passageiro):
+        novo_no = NoFila(passageiro)
 
-        self.fila.append(nome)
-        print(f"Passageiro '{nome}' adicionado à fila.")
+        if self.frente is None:
+            self.frente = novo_no
+            self.fim = novo_no
+            return
 
-    def desenfileirar(self) -> str | None:
-        """Remove e retorna o primeiro passageiro"""
+        self.fim.proximo = novo_no
+        self.fim = novo_no
 
-        if self.esta_vazia():
+    def remover_primeiro(self):
+
+        if self.frente is None:
             return None
 
-        return self.fila.pop(0)
+        passageiro = self.frente.passageiro
+        self.frente = self.frente.proximo
 
-    def primeiro(self) -> str | None:
-        """Retorna o primeiro passageiro sem remover"""
+        if self.frente is None:
+            self.fim = None
 
-        if self.esta_vazia():
-            return None
+        return passageiro
 
-        return self.fila[0]
+    def esta_vazia(self):
+        return self.frente is None
 
-    def esta_vazia(self) -> bool:
-        return len(self.fila) == 0
+    def __str__(self):
 
-    def tamanho(self) -> int:
-        return len(self.fila)
+        atual = self.frente
+        passageiros = []
 
-    def mostrar(self) -> None:
-        """Mostra todos os passageiros"""
+        while atual is not None:
+            passageiros.append(str(atual.passageiro))
+            atual = atual.proximo
 
-        print("Fila de passageiros:")
-
-        if self.esta_vazia():
-            print("  Vazia")
-        else:
-            for p in self.fila:
-                print(f"  - {p}")
-
-    def __str__(self) -> str:
-        return ", ".join(self.fila)
+        return " -> ".join(passageiros) if passageiros else "Fila vazia"
